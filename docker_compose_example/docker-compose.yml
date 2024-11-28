@@ -22,8 +22,8 @@ services:
       dockerfile: Dockerfile
     environment:
       - TARGET_URL=http://server:5000
-    # networks:
-    #   - app_net
+    networks:
+      - app_net
   
 
 networks:
