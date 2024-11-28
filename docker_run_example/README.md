@@ -331,3 +331,33 @@ In the above examples we've set an environmental variable inside the container u
 -e MY_ENV_VAR=VALUE
 ```
 In this case we set the variable `DISPLAY` inside the container to be whatever `$DISPLAY` is on the host system (Linux) or to the `IP_ADDRESS:0` on Mac OS.
+
+
+
+## Permissions
+
+We might notice that the owner of the files we've created is `root`:
+```bash
+ls -lah
+drwxrwxr-x 2 obriens obriens 4.0K Nov 28 17:23 .
+drwxrwxr-x 6 obriens obriens 4.0K Nov 28 15:47 ..
+-rw-rw-r-- 1 obriens obriens  204 Nov 28 14:52 quick_plot.cpp
+-rwxr-xr-x 1 root    root     22K Nov 28 17:13 quick_plot.o
+-rw-rw-r-- 1 obriens obriens  15K Nov 28 17:37 README.md
+-rw-r--r-- 1 root    root    7.6K Nov 28 17:23 sin.png
+```
+
+This is a fairly major security flaw of docker. By default, the user within a container is often the root user. This is because the default user in the build stage (which we'll see in the [next section](../docker_build_example/README.md)) is root. This makes sense as we'll need root permission to install packages.
+
+However, this is terrible practice. From within the container, we are root, we have the permission to edit or delete any file that has been exposed to the container. Good practice is to create a non-privilaged user to operate the container. We'll see how to do this in the next section. For the time being, we can explicitly specify the user within the container using the `--user` flag. Let's recompile `quick_plot.o` using our own user:
+```bash
+docker run -it --rm --name root -v $(pwd):/build --user $(id -u) rootproject/root bash -c "g++ -o /build/quick_plot.o  /build/quick_plot.cpp \$(root-config --cflags --glibs)"
+```
+Here we're getting the current user's id using `id -u` and passing it as the user using the `--user` flag.
+
+Checking again:
+```bash
+ls -lah quick_plot*
+-rw-rw-r-- 1 obriens obriens 204 Nov 28 14:52 quick_plot.cpp
+-rwxr-xr-x 1 obriens obriens 22K Nov 28 17:47 quick_plot.o
+```
