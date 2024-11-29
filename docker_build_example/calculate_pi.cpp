@@ -3,7 +3,6 @@
 #include "omp.h"
 #include <chrono>
 
-
 double calculate_pi(int num_steps){
     double pi = 0;
     double sum = 0;

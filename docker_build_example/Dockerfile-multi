@@ -2,19 +2,19 @@ FROM ubuntu:latest AS base
 
 # Install dependencies gcc
 RUN apt-get update && apt-get install -y \
-    gcc g++\
+    g++\
     && rm -rf /var/lib/apt/lists/*
 
 # add in the files
 COPY ./calculate_pi.cpp /build/calculate_pi.cpp
 
 # compile the code
-RUN g++ /build/calculate_pi.cpp -o /build/calculate_pi -fopenmp
+RUN g++ /build/calculate_pi.cpp -o /build/calculate_pi.o -fopenmp
 
 
 FROM ubuntu:latest AS final
-COPY --from=base /build/calculate_pi /app/calculate_pi
-COPY --from=base /lib/x86_64-linux-gnu/ /lib/x86_64-linux-gnu/
+COPY --from=base /build/calculate_pi.o /app/calculate_pi.o
+COPY --from=base /lib/x86_64-linux-gnu/libgomp.so.1 /lib/x86_64-linux-gnu/libgomp.so.1
+ENV NUM_STEPS=100000
 
-CMD ["/app/calculate_pi", "1000000"]
-# ENTRYPOINT [ "/app/calculate_pi" ]
+CMD ["bash", "-c", "/app/calculate_pi.o ${NUM_STEPS}"]
