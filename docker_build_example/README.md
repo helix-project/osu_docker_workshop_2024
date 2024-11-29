@@ -318,7 +318,7 @@ If we only have access to 4 CPUs/second, then each CPU will be running our code 
 
 In summary:
 * `--cpuset-cpus` allows us to explicitly list the CPUs that we want to run on.
-* `--cpus` specifies the **maximum number of CPUs/per second that our container can use.
+* `--cpus` specifies the **maximum number of CPUs/per second** that our container can use.
 
 ## Memory management
 
